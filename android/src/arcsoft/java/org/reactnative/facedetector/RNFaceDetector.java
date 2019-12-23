@@ -1,6 +1,7 @@
 package org.reactnative.facedetector;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;
@@ -66,12 +67,15 @@ public class RNFaceDetector {
         List<Face> faces = new ArrayList<>();
         List<FaceInfo> faceInfoList = new ArrayList<>();
         int retCode = mEngine.detectFaces(imageData, width, height, format, faceInfoList);
+
         if (retCode == ErrorInfo.MOK) {
             for (int i=0; i<faceInfoList.size(); i++) {
                 Face face = new Face();
                 face.info = faceInfoList.get(i);
                 face.feature = new FaceFeature();
                 retCode = mEngine.extractFaceFeature(imageData, width, height, format, face.info, face.feature);
+
+
                 if (retCode != ErrorInfo.MOK) {
                     face.feature = null;
                 }
@@ -122,13 +126,13 @@ public class RNFaceDetector {
 
     private void createEngine() {
         mEngine = new FaceEngine();
-        int retCode;
+        int retCode = 0;
+
 
         retCode = mEngine.activeOnline(mContext, APP_ID, SDK_KEY);
-        if (retCode != ErrorInfo.MOK) {
+        if (retCode != ErrorInfo.MOK && retCode!=90114) {
             throw new ExceptionInInitializerError("createEngine activate failed `" + retCode + "`.");
         }
-
         retCode = mEngine.init(mContext,
                 mDetectVideo ? FaceEngine.ASF_DETECT_MODE_VIDEO : FaceEngine.ASF_DETECT_MODE_IMAGE,
                 FaceEngine.ASF_OP_0_ONLY,

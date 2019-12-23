@@ -53,14 +53,12 @@ const requestPermissions = async (
       hasReadPhoneStatePermissions = readPhoneStatePermissionResult === PermissionsAndroid.RESULTS.GRANTED;
     }
 
-
     if (typeof cameraPermissionResult === 'boolean') {
       hasCameraPermissions = cameraPermissionResult;
     } else {
       hasCameraPermissions = cameraPermissionResult === PermissionsAndroid.RESULTS.GRANTED;
     }
   }
-
 
   if (captureAudio) {
     if (Platform.OS === 'ios') {

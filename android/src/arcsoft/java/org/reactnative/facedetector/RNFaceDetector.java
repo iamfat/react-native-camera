@@ -66,15 +66,12 @@ public class RNFaceDetector {
         List<Face> faces = new ArrayList<>();
         List<FaceInfo> faceInfoList = new ArrayList<>();
         int retCode = mEngine.detectFaces(imageData, width, height, format, faceInfoList);
-
         if (retCode == ErrorInfo.MOK) {
             for (int i = 0; i < faceInfoList.size(); i++) {
                 Face face = new Face();
                 face.info = faceInfoList.get(i);
                 face.feature = new FaceFeature();
                 retCode = mEngine.extractFaceFeature(imageData, width, height, format, face.info, face.feature);
-
-
                 if (retCode != ErrorInfo.MOK) {
                     face.feature = null;
                 }
@@ -125,9 +122,6 @@ public class RNFaceDetector {
 
     private void createEngine() {
         mEngine = new FaceEngine();
-        int retCode = 0;
-
-
         retCode = mEngine.activeOnline(mContext, APP_ID, SDK_KEY);
         if (retCode != ErrorInfo.MOK && retCode != 90114) {
             throw new ExceptionInInitializerError("createEngine activate failed `" + retCode + "`.");

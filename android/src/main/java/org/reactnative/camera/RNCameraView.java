@@ -58,6 +58,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private boolean mShouldGoogleDetectBarcodes = false;
   private boolean mShouldScanBarCodes = false;
   private boolean mShouldRecognizeText = false;
+  private String mFaceDetectorID = "";
+  private String mFaceDetectorKey = "";
   private int mFaceDetectorMode = RNFaceDetector.FAST_MODE;
   private int mFaceDetectionLandmarks = RNFaceDetector.NO_LANDMARKS;
   private int mFaceDetectionClassifications = RNFaceDetector.NO_CLASSIFICATIONS;
@@ -336,6 +338,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
    */
   private void setupFaceDetector() {
     mFaceDetector = new RNFaceDetector(mThemedReactContext);
+    mFaceDetector.setEngineOptions(mFaceDetectorID,mFaceDetectorKey);
     mFaceDetector.setMode(mFaceDetectorMode);
     mFaceDetector.setLandmarkType(mFaceDetectionLandmarks);
     mFaceDetector.setClassificationType(mFaceDetectionClassifications);
@@ -361,6 +364,11 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     if (mFaceDetector != null) {
       mFaceDetector.setMode(mode);
     }
+  }
+
+  public void setFaceDetectionEngineOptions(ReadableMap options) {
+    mFaceDetectorID = options.getString("appId");
+    mFaceDetectorKey = options.getString("sdkKey");
   }
 
   public void setTracking(boolean trackingEnabled) {

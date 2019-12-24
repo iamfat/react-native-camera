@@ -164,6 +164,11 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     view.setFaceDetectionMode(mode);
   }
 
+  @ReactProp(name = "faceDetectionEngineOptions")
+  public void setFaceDetectionEngineOptions(RNCameraView view, ReadableMap options) {
+    view.setFaceDetectionEngineOptions(options);
+  }
+
   @ReactProp(name = "faceDetectionLandmarks")
   public void setFaceDetectionLandmarks(RNCameraView view, int landmarks) {
     view.setFaceDetectionLandmarks(landmarks);

@@ -24,8 +24,8 @@ public class RNFaceDetector {
     public static int ACCURATE_MODE = 1;
     public static int FAST_MODE = 0;
 
-    public static String APP_ID = "";
-    public static String SDK_KEY = "";
+    public static String mAppId = "";
+    public static String mSdkKey = "";
 
     private FaceEngine mEngine = null;
     private Context mContext = null;
@@ -40,7 +40,7 @@ public class RNFaceDetector {
     public RNFaceDetector(Context context, boolean detectVideo) {
         mContext = context;
         mDetectVideo = detectVideo;
-        createEngine();
+//        createEngine();
     }
 
     public RNFaceDetector(Context context) {
@@ -62,7 +62,6 @@ public class RNFaceDetector {
         if (mEngine == null) {
             createEngine();
         }
-
         List<Face> faces = new ArrayList<>();
         List<FaceInfo> faceInfoList = new ArrayList<>();
         int retCode = mEngine.detectFaces(imageData, width, height, format, faceInfoList);
@@ -108,6 +107,14 @@ public class RNFaceDetector {
         }
     }
 
+    public void setEngineOptions(String appId, String sdkKey) {
+        if (appId != mAppId || sdkKey != mSdkKey) {
+            releaseEngine();
+            mAppId = appId;
+            mSdkKey = sdkKey;
+        }
+    }
+
     public void release() {
         releaseEngine();
     }
@@ -123,8 +130,8 @@ public class RNFaceDetector {
     private void createEngine() {
         mEngine = new FaceEngine();
         int retCode;
-        retCode = mEngine.activeOnline(mContext, APP_ID, SDK_KEY);
-        if (retCode != ErrorInfo.MOK && retCode != 90114) {
+        retCode = mEngine.activeOnline(mContext, mAppId, mSdkKey);
+        if (retCode != ErrorInfo.MOK && retCode!=90114) {
             throw new ExceptionInInitializerError("createEngine activate failed `" + retCode + "`.");
         }
         retCode = mEngine.init(mContext,

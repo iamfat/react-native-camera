@@ -90,6 +90,7 @@ class TakePicture extends Component {
           style={styles.preview}
           aspect={Camera.constants.Aspect.fill}
           captureAudio={false}
+          mirrorImage={true}
         >
           <View style={styles.captureContainer}>
             <TouchableOpacity style={styles.capture} onPress={this.takePicture}>

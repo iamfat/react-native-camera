@@ -55,6 +55,10 @@ export default class FaceDetector {
   static detectFacesAsync(uri: string, options: ?DetectionOptions): Promise<Array<FaceFeature>> {
     return FaceDetectorModule.detectFaces({ ...options, uri });
   }
+
+  static identifyFaceAsync(feature: string, candidates:Map<string,string>):Promise<?WritableMap> {
+    return  FaceDetectorModule.identifyFace(feature, candidates);
+  }
 }
 
 export const Constants = FaceDetector.Constants;

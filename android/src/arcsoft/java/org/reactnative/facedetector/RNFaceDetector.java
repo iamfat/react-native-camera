@@ -150,10 +150,12 @@ public class RNFaceDetector {
     private void createEngine() {
         mEngine = new FaceEngine();
         int retCode;
+      
         retCode = mEngine.activeOnline(mContext, mAppId, mSdkKey);
-        if (retCode != ErrorInfo.MOK && retCode!=90114) {
+        if (retCode != ErrorInfo.MOK && retCode != 90114) {
             throw new ExceptionInInitializerError("createEngine activate failed `" + retCode + "`.");
         }
+
         retCode = mEngine.init(mContext,
                 mDetectVideo ? FaceEngine.ASF_DETECT_MODE_VIDEO : FaceEngine.ASF_DETECT_MODE_IMAGE,
                 FaceEngine.ASF_OP_0_ONLY,

@@ -2,6 +2,7 @@ package org.reactnative.facedetector;
 
 import android.content.Context;
 import android.util.Base64;
+
 import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;
 import com.arcsoft.face.FaceFeature;
@@ -83,10 +84,10 @@ public class RNFaceDetector {
         return faces;
     }
 
-    public float compare(byte[] mFeature,Object faceFeature2) {
+    public float compare(byte[] mFeature,byte[] mfaceFeature) {
         FaceSimilar mfaceSimilar = new FaceSimilar();
         FaceFeature mfaceFeatureObject1 = new FaceFeature(mFeature);
-        FaceFeature mfaceFeatureObject2 = new FaceFeature(Base64.decode(String.valueOf(faceFeature2),Base64.NO_WRAP));
+        FaceFeature mfaceFeatureObject2 = new FaceFeature(mfaceFeature);
         float msimiliarity = 0;
 
         if (mEngine == null) {

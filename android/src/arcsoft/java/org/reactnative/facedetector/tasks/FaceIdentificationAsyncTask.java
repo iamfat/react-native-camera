@@ -54,7 +54,7 @@ public class FaceIdentificationAsyncTask extends AsyncTask<Void, Void, Map<Strin
     HashMap<String,Double> hits = new HashMap<String, Double>();
     mRNFaceDetector = detectorForIdentify(mContext);
     for (Map.Entry<String, Object> entry : mfaceCandidates.entrySet()){
-      float code = mRNFaceDetector.compare(mFeature,entry.getValue());
+      float code = mRNFaceDetector.compare(mFeature,Base64.decode(String.valueOf(entry.getValue()),Base64.NO_WRAP));
       if(code != 0 && code >= mthreshold){
         String faceID = entry.getKey();
         hits.put(faceID,Double.valueOf(code));

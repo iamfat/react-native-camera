@@ -1,6 +1,7 @@
 package org.reactnative.facedetector;
 
 import android.content.Context;
+import android.util.Base64;
 import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;
 import com.arcsoft.face.FaceFeature;
@@ -59,15 +60,18 @@ public class RNFaceDetector {
         if (mEngine == null) {
             createEngine();
         }
+
         List<Face> faces = new ArrayList<>();
         List<FaceInfo> faceInfoList = new ArrayList<>();
         int retCode = mEngine.detectFaces(imageData, width, height, format, faceInfoList);
+
         if (retCode == ErrorInfo.MOK) {
             for (int i = 0; i < faceInfoList.size(); i++) {
                 Face face = new Face();
                 face.info = faceInfoList.get(i);
                 face.feature = new FaceFeature();
                 retCode = mEngine.extractFaceFeature(imageData, width, height, format, face.info, face.feature);
+
                 if (retCode != ErrorInfo.MOK) {
                     face.feature = null;
                 }
@@ -79,21 +83,21 @@ public class RNFaceDetector {
         return faces;
     }
 
-    public float compare(FaceFeature faceFeature1,FaceFeature faceFeature2, FaceSimilar faceSimilar) {
-        float threshold = 0;
-        if (mMode ==0){
-            setMode(1);
-        }
+    public float compare(byte[] mFeature,Object faceFeature2) {
+        FaceSimilar mfaceSimilar = new FaceSimilar();
+        FaceFeature mfaceFeatureObject1 = new FaceFeature(mFeature);
+        FaceFeature mfaceFeatureObject2 = new FaceFeature(Base64.decode(String.valueOf(faceFeature2),Base64.NO_WRAP));
+        float msimiliarity = 0;
 
         if (mEngine == null) {
             createEngine();
         }
 
-        int code = mEngine.compareFaceFeature(faceFeature1,faceFeature2,faceSimilar);
+        int code = mEngine.compareFaceFeature(mfaceFeatureObject1,mfaceFeatureObject2,mfaceSimilar);
         if (code == ErrorInfo.MOK){
-            threshold = faceSimilar.getScore();
+            msimiliarity = mfaceSimilar.getScore();
         }
-        return threshold;
+        return msimiliarity;
     }
 
     public void setTracking(boolean trackingEnabled) {
@@ -115,6 +119,7 @@ public class RNFaceDetector {
     }
 
     public void setMode(int mode) {
+
         if (mode != mMode) {
             releaseEngine();
             mMode = mode;
@@ -145,7 +150,7 @@ public class RNFaceDetector {
         mEngine = new FaceEngine();
         int retCode;
         retCode = mEngine.activeOnline(mContext, mAppId, mSdkKey);
-        if (retCode != ErrorInfo.MOK && retCode != 90114) {
+        if (retCode != ErrorInfo.MOK && retCode!=90114) {
             throw new ExceptionInInitializerError("createEngine activate failed `" + retCode + "`.");
         }
         retCode = mEngine.init(mContext,

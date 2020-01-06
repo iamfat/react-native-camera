@@ -75,7 +75,7 @@ public class FaceDetectorModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void identifyFace(String feature, ReadableMap candidates, final Promise promise) {
-        new FaceIdentificationAsyncTask(mScopedContext, feature, candidates, promise).execute();
+    public void identifyFace(String feature, ReadableMap candidates, float threshold, final Promise promise) {
+        new FaceIdentificationAsyncTask(mScopedContext, feature, candidates,threshold, promise).execute();
     }
 }

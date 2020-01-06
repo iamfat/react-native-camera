@@ -21,18 +21,20 @@ import java.util.Map;
 import android.util.Base64;
 
 public class FaceIdentificationAsyncTask extends AsyncTask<Void, Void, Map<String, Double>> {
-  private String mFeature;
-  private ReadableMap faceCandidates;
+  private byte[] mFeature;
+  private Map<String,Object> mfaceCandidates;
 
   private Promise mPromise;
+  private float mthreshold;
   private Context mContext;
   private RNFaceDetector mRNFaceDetector;
 
-  public FaceIdentificationAsyncTask(Context context, String feature, ReadableMap candidates, Promise promise) {
+  public FaceIdentificationAsyncTask(Context context, String feature, ReadableMap candidates,float threshold, Promise promise) {
     mPromise = promise;
-    mFeature = feature;
-    faceCandidates = candidates;
+    mFeature = Base64.decode(feature,Base64.NO_WRAP );
+    mfaceCandidates = candidates.toHashMap();
     mContext = context;
+    mthreshold = threshold;
   }
 
   @Override
@@ -41,7 +43,7 @@ public class FaceIdentificationAsyncTask extends AsyncTask<Void, Void, Map<Strin
       return;
     }
 
-    if (faceCandidates == null){
+    if (mfaceCandidates == null){
       return;
     }
 
@@ -49,25 +51,16 @@ public class FaceIdentificationAsyncTask extends AsyncTask<Void, Void, Map<Strin
 
   @Override
   protected Map<String, Double> doInBackground(Void... voids) {
-    FaceSimilar faceSimilar = new FaceSimilar();
-    float similar = 0.8f;
-    HashMap<String,Double> similarities = new HashMap<String, Double>();
+    HashMap<String,Double> hits = new HashMap<String, Double>();
     mRNFaceDetector = detectorForIdentify(mContext);
-    Map<String,Object> map = faceCandidates.toHashMap();
-    for (Map.Entry<String, Object> entry : map.entrySet()){
-      byte[] faceFeature1 = Base64.decode(mFeature,Base64.NO_WRAP );
-      byte[] faceFeature2 = Base64.decode(String.valueOf(entry.getValue()),Base64.NO_WRAP);
-      FaceFeature faceFeatureObject1 = new FaceFeature(faceFeature1);
-      FaceFeature faceFeatureObject2 = new FaceFeature(faceFeature2);
-
-      float code = mRNFaceDetector.compare(faceFeatureObject1,faceFeatureObject2,faceSimilar);
-      if(code != 0 && code >= similar){
+    for (Map.Entry<String, Object> entry : mfaceCandidates.entrySet()){
+      float code = mRNFaceDetector.compare(mFeature,entry.getValue());
+      if(code != 0 && code >= mthreshold){
         String faceID = entry.getKey();
-        Double doubleSimilarity=Double.valueOf(String.valueOf(code));
-        similarities.put(faceID,doubleSimilarity);
+        hits.put(faceID,Double.valueOf(code));
       }
     }
-    return similarities;
+    return hits;
   }
 
   @Override

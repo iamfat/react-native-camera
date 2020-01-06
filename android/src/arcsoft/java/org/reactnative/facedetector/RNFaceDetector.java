@@ -1,12 +1,11 @@
 package org.reactnative.facedetector;
 
 import android.content.Context;
-
 import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;
 import com.arcsoft.face.FaceFeature;
 import com.arcsoft.face.FaceInfo;
-
+import com.arcsoft.face.FaceSimilar;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +28,6 @@ public class RNFaceDetector {
 
     private FaceEngine mEngine = null;
     private Context mContext = null;
-
     private int mClassificationType = NO_CLASSIFICATIONS;
     private int mLandmarkType = NO_LANDMARKS;
     private int mMode = FAST_MODE;
@@ -40,7 +38,6 @@ public class RNFaceDetector {
     public RNFaceDetector(Context context, boolean detectVideo) {
         mContext = context;
         mDetectVideo = detectVideo;
-//        createEngine();
     }
 
     public RNFaceDetector(Context context) {
@@ -80,6 +77,23 @@ public class RNFaceDetector {
         }
 
         return faces;
+    }
+
+    public float compare(FaceFeature faceFeature1,FaceFeature faceFeature2, FaceSimilar faceSimilar) {
+        float threshold = 0;
+        if (mMode ==0){
+            setMode(1);
+        }
+
+        if (mEngine == null) {
+            createEngine();
+        }
+
+        int code = mEngine.compareFaceFeature(faceFeature1,faceFeature2,faceSimilar);
+        if (code == ErrorInfo.MOK){
+            threshold = faceSimilar.getScore();
+        }
+        return threshold;
     }
 
     public void setTracking(boolean trackingEnabled) {

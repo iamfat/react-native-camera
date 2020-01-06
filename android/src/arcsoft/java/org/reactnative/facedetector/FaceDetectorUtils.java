@@ -30,7 +30,7 @@ public class FaceDetectorUtils {
 
         if (face.feature != null) {
             byte[] featureData = face.feature.getFeatureData();
-            encodedFace.putString("feature", Base64.encodeToString(featureData, Base64.DEFAULT));
+            encodedFace.putString("feature", Base64.encodeToString(featureData,Base64.NO_WRAP));
         }
 
         return encodedFace;

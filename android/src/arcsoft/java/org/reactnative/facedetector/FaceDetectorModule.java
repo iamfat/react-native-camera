@@ -6,6 +6,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 
+import org.reactnative.facedetector.tasks.FaceIdentificationAsyncTask;
 import org.reactnative.facedetector.tasks.FileFaceDetectionAsyncTask;
 
 import java.util.Collections;
@@ -71,5 +72,10 @@ public class FaceDetectorModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void detectFaces(ReadableMap options, final Promise promise) {
         new FileFaceDetectionAsyncTask(mScopedContext, options, promise).execute();
+    }
+
+    @ReactMethod
+    public void identifyFace(String feature, ReadableMap candidates, final Promise promise) {
+        new FaceIdentificationAsyncTask(mScopedContext, feature, candidates, promise).execute();
     }
 }

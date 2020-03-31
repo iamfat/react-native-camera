@@ -50,7 +50,7 @@ android {
 
   sourceSets {
     arcsoft {
-      jniLibs.srcDirs = ['libs']
+      jniLibs.srcDirs = ['libs/arcsoft']
     }
   }
 
@@ -102,7 +102,7 @@ task downloadFaceEngine(type: Download) {
 
 task prepareFaceEngine(dependsOn: downloadFaceEngine, type: Copy) {
   from zipTree(downloadFaceEngine.dest)
-  into 'libs'
+  into 'libs/arcsoft'
 }
 
 preBuild.dependsOn prepareFaceEngine

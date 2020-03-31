@@ -29,10 +29,14 @@ const requestPermissions = async (
   CameraManager: any,
   androidCameraPermissionOptions: Rationale | null,
   androidRecordAudioPermissionOptions: Rationale | null,
-): Promise<{ hasCameraPermissions: boolean, hasRecordAudioPermissions: boolean }> => {
+): Promise<{
+  hasCameraPermissions: boolean,
+  hasRecordAudioPermissions: boolean,
+  hasReadPhoneStatePermissions: boolean,
+}> => {
   let hasCameraPermissions = false;
   let hasRecordAudioPermissions = false;
-
+  let hasReadPhoneStatePermissions = false;
   if (Platform.OS === 'ios') {
     hasCameraPermissions = await CameraManager.checkVideoAuthorizationStatus();
   } else if (Platform.OS === 'android') {
@@ -40,6 +44,19 @@ const requestPermissions = async (
       PermissionsAndroid.PERMISSIONS.CAMERA,
       androidCameraPermissionOptions,
     );
+
+    const readPhoneStatePermissionResult = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.READ_PHONE_STATE,
+      androidCameraPermissionOptions,
+    );
+
+    if (typeof readPhoneStatePermissionResult === 'boolean') {
+      hasReadPhoneStatePermissions = readPhoneStatePermissionResult;
+    } else {
+      hasReadPhoneStatePermissions =
+        readPhoneStatePermissionResult === PermissionsAndroid.RESULTS.GRANTED;
+    }
+
     if (typeof cameraPermissionResult === 'boolean') {
       hasCameraPermissions = cameraPermissionResult;
     } else {
@@ -79,6 +96,7 @@ const requestPermissions = async (
   return {
     hasCameraPermissions,
     hasRecordAudioPermissions,
+    hasReadPhoneStatePermissions,
   };
 };
 

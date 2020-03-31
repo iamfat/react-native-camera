@@ -19,6 +19,10 @@ buildscript {
   }
 }
 
+plugins {
+    id "de.undercouch.download" version "4.0.4"
+}
+
 apply plugin: 'com.android.library'
 
 android {
@@ -39,6 +43,15 @@ android {
     mlkit {
       dimension "react-native-camera"
     }
+    arcsoft {
+      dimension "react-native-camera"
+    }
+  }
+
+  sourceSets {
+    arcsoft {
+      jniLibs.srcDirs = ['libs']
+    }
   }
 
   lintOptions {
@@ -50,6 +63,7 @@ android {
     exclude 'META-INF/androidx.exifinterface_exifinterface.version'
     exclude 'META-INF/proguard/androidx-annotations.pro'
   }
+
 }
 
 repositories {
@@ -76,4 +90,19 @@ dependencies {
   implementation "androidx.legacy:legacy-support-v4:1.0.0"
   mlkitImplementation "com.google.firebase:firebase-ml-vision:${safeExtGet('firebase-ml-vision', '19.0.3')}"
   mlkitImplementation "com.google.firebase:firebase-ml-vision-face-model:${safeExtGet('firebase-ml-vision-face-model', '17.0.2')}"
+  arcsoftImplementation "com.google.android.gms:play-services-vision:$googlePlayServicesVisionVersion"
+  arcsoftImplementation fileTree(dir: 'libs/arcsoft', include: ['*.jar'])
 }
+
+task downloadFaceEngine(type: Download) {
+  src 'http://d.genee.cn/3rd/arcsoft/3.0/libs.zip'
+  dest new File(buildDir, '/tmp/arcsoft-libs.zip')
+  onlyIfModified true
+}
+
+task prepareFaceEngine(dependsOn: downloadFaceEngine, type: Copy) {
+  from zipTree(downloadFaceEngine.dest)
+  into 'libs'
+}
+
+preBuild.dependsOn prepareFaceEngine

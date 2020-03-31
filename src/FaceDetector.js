@@ -9,6 +9,7 @@ const FaceDetectorModule: Object = NativeModules.RNFaceDetector || {
   Landmarks: {},
   Classifications: {},
   detectFaces: () => new Promise((_, reject) => reject(faceDetectionDisabledMessage)),
+  identifyFace: () => new Promise((_, reject) => reject(faceDetectionDisabledMessage)),
 };
 
 type Point = { x: number, y: number };
@@ -54,6 +55,14 @@ export default class FaceDetector {
 
   static detectFacesAsync(uri: string, options: ?DetectionOptions): Promise<Array<FaceFeature>> {
     return FaceDetectorModule.detectFaces({ ...options, uri });
+  }
+
+  static identifyFaceAsync(
+    feature: string,
+    candidates: Map<string, string>,
+    threshold: number = 0.8,
+  ): Promise<WritableMap> {
+    return FaceDetectorModule.identifyFace(feature, candidates, threshold);
   }
 }
 

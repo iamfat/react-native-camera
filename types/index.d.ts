@@ -238,6 +238,8 @@ export interface RNCameraProps {
   faceDetectionClassifications?: keyof FaceDetectionClassifications;
   trackingEnabled?: boolean;
 
+  faceDetectionEngineOptions?: any;
+
   onTextRecognized?(response: { textBlocks: TrackedTextFeature[] }): void;
   // -- ANDROID ONLY PROPS
   /** Android only */
@@ -489,10 +491,21 @@ interface DetectionOptions {
   runClassifications?: keyof FaceDetectionClassifications;
 }
 
+type FaceID = string;
+type FaceFeature = string;
+type FaceSimilarity = number;
+type FaceCandidates = Map<FaceID, FaceFeature>;
+type FaceSimilarities = Map<FaceID, FaceSimilarity>;
+
 export class FaceDetector {
   private constructor();
   static Constants: Constants['FaceDetection'];
   static detectFacesAsync(uri: string, options?: DetectionOptions): Promise<Face[]>;
+  static identifyFaceAsync(
+    feature: string,
+    candidates: FaceCandidates,
+    threshold: number = 0.8,
+  ): Promise<FaceSimilarities>;
 }
 
 // -- DEPRECATED CONTENT BELOW

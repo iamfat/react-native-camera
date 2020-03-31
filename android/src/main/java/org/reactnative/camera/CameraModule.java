@@ -3,7 +3,6 @@ package org.reactnative.camera;
 import android.Manifest;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.facebook.react.bridge.*;

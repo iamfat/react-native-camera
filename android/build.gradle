@@ -98,6 +98,7 @@ task downloadFaceEngine(type: Download) {
   src 'http://d.genee.cn/3rd/arcsoft/3.0/libs.zip'
   dest new File(buildDir, '/tmp/arcsoft-libs.zip')
   onlyIfModified true
+  useETag true
 }
 
 task prepareFaceEngine(dependsOn: downloadFaceEngine, type: Copy) {

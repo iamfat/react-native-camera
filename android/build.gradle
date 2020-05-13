@@ -96,7 +96,7 @@ dependencies {
 
 task downloadFaceEngine(type: Download) {
   src 'http://d.genee.cn/3rd/arcsoft/3.0/libs.zip'
-  dest new File(buildDir, '/tmp/arcsoft-libs.zip')
+  dest new File(rootProject.buildDir, '/tmp/arcsoft-libs.zip')
   onlyIfModified true
   useETag true
 }

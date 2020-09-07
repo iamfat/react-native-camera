@@ -15,14 +15,21 @@ buildscript {
     dependencies {
       //noinspection GradleDependency
       classpath("com.android.tools.build:gradle:3.6.3")
+      classpath("de.undercouch:gradle-download-task:4.1.1")
+    }
+  } else {
+    repositories {
+      jcenter()
+    }
+
+    dependencies {
+      classpath("de.undercouch:gradle-download-task:4.1.1")
     }
   }
 }
 
-plugins {
-  id("com.android.library")
-  id("de.undercouch.download")
-}
+apply plugin: "com.android.library"
+apply plugin: "de.undercouch.download"
 
 android {
   compileSdkVersion safeExtGet('compileSdkVersion', 28)

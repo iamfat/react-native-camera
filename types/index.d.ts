@@ -103,13 +103,11 @@ type RecordAudioPermissionStatus = Readonly<
     NOT_AUTHORIZED: 'NOT_AUTHORIZED';
   }>
 >;
-type FaCC = (
-  params: {
-    camera: RNCamera;
-    status: keyof CameraStatus;
-    recordAudioPermissionStatus: keyof RecordAudioPermissionStatus;
-  },
-) => JSX.Element;
+type FaCC = (params: {
+  camera: RNCamera;
+  status: keyof CameraStatus;
+  recordAudioPermissionStatus: keyof RecordAudioPermissionStatus;
+}) => JSX.Element;
 
 export interface Constants {
   CameraStatus: CameraStatus;
@@ -491,11 +489,8 @@ interface DetectionOptions {
   runClassifications?: keyof FaceDetectionClassifications;
 }
 
-type FaceID = string;
-type FaceFeature = string;
-type FaceSimilarity = number;
-type FaceCandidates = Map<FaceID, FaceFeature>;
-type FaceSimilarities = Map<FaceID, FaceSimilarity>;
+type FaceCandidates = { [faceId: string]: string };
+type FaceSimilarities = { [faceId: string]: number };
 
 export class FaceDetector {
   private constructor();

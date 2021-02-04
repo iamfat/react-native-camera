@@ -46,6 +46,9 @@ type DetectionOptions = {
   runClassifications?: $Keys<typeof FaceDetectorModule.Classifications>,
 };
 
+type FaceCandidates = { [faceId: string]: string };
+type FaceSimilarities = { [faceId: string]: number };
+
 export default class FaceDetector {
   static Constants = {
     Mode: FaceDetectorModule.Mode,
@@ -59,9 +62,9 @@ export default class FaceDetector {
 
   static identifyFaceAsync(
     feature: string,
-    candidates: Map<string, string>,
+    candidates: FaceCandidates,
     threshold: number = 0.8,
-  ): Promise<WritableMap> {
+  ): Promise<FaceSimilarities> {
     return FaceDetectorModule.identifyFace(feature, candidates, threshold);
   }
 }

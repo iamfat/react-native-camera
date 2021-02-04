@@ -477,6 +477,9 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   public void setFaceDetectionEngineOptions(ReadableMap options) {
     mFaceEngineAppId = options.hasKey("appId") ? options.getString("appId") : "";
     mFaceEngineSdkKey = options.hasKey("sdkKey") ? options.getString("sdkKey") : "";
+    if (mFaceDetector != null) {
+      mFaceDetector.setEngineOptions(mFaceEngineAppId, mFaceEngineSdkKey);
+    }
   }
 
   public void setTracking(boolean trackingEnabled) {

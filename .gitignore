@@ -40,6 +40,7 @@ yarn-error.log
 # BUCK
 buck-out/
 \.buckd/
+android/libs
 android/app/libs
 android/keystores/debug.keystore
 package-json.lock
@@ -49,3 +50,4 @@ package-json.lock
 examples/mlkit/android/app/google-services.json
 examples/mlkit/ios/Pods
 examples/mlkit/ios/mlkit/GoogleService-Info.plist
+

@@ -16,11 +16,21 @@ buildscript {
     dependencies {
       //noinspection GradleDependency
       classpath("com.android.tools.build:gradle:4.1.0")
+      classpath("de.undercouch:gradle-download-task:4.1.1")
+    }
+  } else {
+    repositories {
+      jcenter()
+    }
+
+    dependencies {
+      classpath("de.undercouch:gradle-download-task:4.1.1")
     }
   }
 }
 
-apply plugin: 'com.android.library'
+apply plugin: "com.android.library"
+apply plugin: "de.undercouch.download"
 
 android {
   compileSdkVersion safeExtGet('compileSdkVersion', 29)
@@ -41,6 +51,15 @@ android {
     mlkit {
       dimension "react-native-camera"
     }
+    arcsoft {
+      dimension "react-native-camera"
+    }
+  }
+
+  sourceSets {
+    arcsoft {
+      jniLibs.srcDirs = ['libs/arcsoft']
+    }
   }
 
   lintOptions {
@@ -51,7 +70,9 @@ android {
   packagingOptions {
     exclude 'META-INF/androidx.exifinterface_exifinterface.version'
     exclude 'META-INF/proguard/androidx-annotations.pro'
+    doNotStrip 'libs/arcsoft/**/*.so'
   }
+
 }
 
 repositories {
@@ -78,4 +99,19 @@ dependencies {
   generalImplementation "com.google.android.gms:play-services-mlkit-face-detection:16.2.0"
   mlkitImplementation "com.google.mlkit:barcode-scanning:16.2.0"
   mlkitImplementation "com.google.mlkit:face-detection:16.1.2"
+  arcsoftImplementation fileTree(dir: 'libs/arcsoft', include: ['*.jar'])
 }
+
+task downloadFaceEngine(type: Download) {
+  src 'http://d.genee.cn/3rd/arcsoft/3.0/libs.zip'
+  dest new File(rootProject.buildDir, '/tmp/arcsoft-libs.zip')
+  onlyIfModified true
+  useETag true
+}
+
+task prepareFaceEngine(dependsOn: downloadFaceEngine, type: Copy) {
+  from zipTree(downloadFaceEngine.dest)
+  into 'libs/arcsoft'
+}
+
+preBuild.dependsOn prepareFaceEngine

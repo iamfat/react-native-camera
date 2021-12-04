@@ -107,13 +107,11 @@ type RecordAudioPermissionStatus = Readonly<
     NOT_AUTHORIZED: 'NOT_AUTHORIZED';
   }>
 >;
-type FaCC = (
-  params: {
-    camera: RNCamera;
-    status: keyof CameraStatus;
-    recordAudioPermissionStatus: keyof RecordAudioPermissionStatus;
-  },
-) => JSX.Element;
+type FaCC = (params: {
+  camera: RNCamera;
+  status: keyof CameraStatus;
+  recordAudioPermissionStatus: keyof RecordAudioPermissionStatus;
+}) => JSX.Element;
 
 export interface Constants {
   CameraStatus: CameraStatus;
@@ -243,6 +241,8 @@ export interface RNCameraProps {
   faceDetectionLandmarks?: keyof FaceDetectionLandmarks;
   faceDetectionClassifications?: keyof FaceDetectionClassifications;
   trackingEnabled?: boolean;
+
+  faceDetectionEngineOptions?: any;
 
   onTextRecognized?(response: { textBlocks: TrackedTextFeature[] }): void;
   // -- ANDROID ONLY PROPS
@@ -513,10 +513,18 @@ interface DetectionOptions {
   runClassifications?: keyof FaceDetectionClassifications;
 }
 
+type FaceCandidates = { [faceId: string]: string };
+type FaceSimilarities = { [faceId: string]: number };
+
 export class FaceDetector {
   private constructor();
   static Constants: Constants['FaceDetection'];
   static detectFacesAsync(uri: string, options?: DetectionOptions): Promise<Face[]>;
+  static identifyFaceAsync(
+    feature: string,
+    candidates: FaceCandidates,
+    threshold: number = 0.8,
+  ): Promise<FaceSimilarities>;
 }
 
 // -- DEPRECATED CONTENT BELOW

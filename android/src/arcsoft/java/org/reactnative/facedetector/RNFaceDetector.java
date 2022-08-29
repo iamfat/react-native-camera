@@ -154,7 +154,11 @@ public class RNFaceDetector {
         mEngine = new FaceEngine();
         int retCode;
 
-        retCode = mEngine.activeOnline(mContext, mAppId, mSdkKey);
+        if (mAppId.startsWith("/")) {
+            retCode = mEngine.activeOffline(mContenxt, mAppId);
+        } else {
+            retCode = mEngine.activeOnline(mContext, mAppId, mSdkKey);
+        }
         if (retCode != ErrorInfo.MOK && retCode != 90114) {
             // throw new ExceptionInInitializerError("createEngine activate failed `" + retCode + "`.");
             Log.d("arcsoft", "createEngine:activate error=" + retCode);

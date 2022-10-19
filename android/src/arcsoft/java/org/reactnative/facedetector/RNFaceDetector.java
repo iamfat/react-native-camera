@@ -30,6 +30,7 @@ public class RNFaceDetector {
 
     public static String mAppId = "";
     public static String mSdkKey = "";
+    public static String mActiveKey = "";
 
     private FaceEngine mEngine = null;
     private Context mContext = null;
@@ -130,11 +131,12 @@ public class RNFaceDetector {
         }
     }
 
-    public void setEngineOptions(String appId, String sdkKey) {
-        if (appId != mAppId || sdkKey != mSdkKey) {
+    public void setEngineOptions(String appId, String sdkKey, String activeKey) {
+        if (appId != mAppId || sdkKey != mSdkKey || activeKey != mActiveKey) {
             releaseEngine();
             mAppId = appId;
             mSdkKey = sdkKey;
+            mActiveKey = activeKey;
         }
     }
 
@@ -155,9 +157,9 @@ public class RNFaceDetector {
         int retCode;
 
         if (mAppId.startsWith("/")) {
-            retCode = mEngine.activeOffline(mContenxt, mAppId);
+            retCode = mEngine.activeOffline(mContext, mAppId);
         } else {
-            retCode = mEngine.activeOnline(mContext, mAppId, mSdkKey);
+            retCode = mEngine.activeOnline(mContext, mActiveKey, mAppId, mSdkKey);
         }
         if (retCode != ErrorInfo.MOK && retCode != 90114) {
             // throw new ExceptionInInitializerError("createEngine activate failed `" + retCode + "`.");

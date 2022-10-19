@@ -76,6 +76,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private boolean mShouldDetectTouches = false;
   private String mFaceEngineAppId = "";
   private String mFaceEngineSdkKey = "";
+  private String mFaceEngineActiveKey = "";
   private int mFaceDetectorMode = RNFaceDetector.FAST_MODE;
   private int mFaceDetectionLandmarks = RNFaceDetector.NO_LANDMARKS;
   private int mFaceDetectionClassifications = RNFaceDetector.NO_CLASSIFICATIONS;
@@ -446,7 +447,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
    */
   private void setupFaceDetector() {
     mFaceDetector = new RNFaceDetector(mThemedReactContext);
-    mFaceDetector.setEngineOptions(mFaceEngineAppId,mFaceEngineSdkKey);
+    mFaceDetector.setEngineOptions(mFaceEngineAppId,mFaceEngineSdkKey, mFaceEngineActiveKey);
     mFaceDetector.setMode(mFaceDetectorMode);
     mFaceDetector.setLandmarkType(mFaceDetectionLandmarks);
     mFaceDetector.setClassificationType(mFaceDetectionClassifications);
@@ -477,8 +478,9 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   public void setFaceDetectionEngineOptions(ReadableMap options) {
     mFaceEngineAppId = options.hasKey("appId") ? options.getString("appId") : "";
     mFaceEngineSdkKey = options.hasKey("sdkKey") ? options.getString("sdkKey") : "";
+    mFaceEngineActiveKey = options.hasKey("activeKey") ? options.getString("activeKey") : "";
     if (mFaceDetector != null) {
-      mFaceDetector.setEngineOptions(mFaceEngineAppId, mFaceEngineSdkKey);
+      mFaceDetector.setEngineOptions(mFaceEngineAppId, mFaceEngineSdkKey, mFaceEngineActiveKey);
     }
   }
 

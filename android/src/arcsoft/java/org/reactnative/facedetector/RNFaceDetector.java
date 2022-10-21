@@ -156,8 +156,8 @@ public class RNFaceDetector {
         mEngine = new FaceEngine();
         int retCode;
 
-        if (mAppId.startsWith("/")) {
-            retCode = mEngine.activeOffline(mContext, mAppId);
+        if (mActiveKey.startsWith("/")) {
+            retCode = mEngine.activeOffline(mContext, mActiveKey);
         } else {
             retCode = mEngine.activeOnline(mContext, mActiveKey, mAppId, mSdkKey);
         }

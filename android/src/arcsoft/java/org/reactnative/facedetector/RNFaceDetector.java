@@ -62,47 +62,49 @@ public class RNFaceDetector {
     }
 
     public List<Face> detect(byte[] imageData, int width, int height, int format) {
-        if (mEngine == null) {
-            createEngine();
-        }
-
         List<Face> faces = new ArrayList<>();
         List<FaceInfo> faceInfoList = new ArrayList<>();
-        int retCode = mEngine.detectFaces(imageData, width, height, format, faceInfoList);
 
-        if (retCode == ErrorInfo.MOK) {
-            for (int i = 0; i < faceInfoList.size(); i++) {
-                Face face = new Face();
-                face.info = faceInfoList.get(i);
-                face.feature = new FaceFeature();
-                retCode = mEngine.extractFaceFeature(imageData, width, height, format, face.info, face.feature);
-
-                if (retCode != ErrorInfo.MOK) {
-                    face.feature = null;
-                }
-                faces.add(face);
+        synchronized(this) {
+            if (mEngine == null) {
+                createEngine();
             }
+            int retCode = mEngine.detectFaces(imageData, width, height, format, faceInfoList);
+            if (retCode == ErrorInfo.MOK) {
+                for (int i = 0; i < faceInfoList.size(); i++) {
+                    Face face = new Face();
+                    face.info = faceInfoList.get(i);
+                    face.feature = new FaceFeature();
+                    retCode = mEngine.extractFaceFeature(imageData, width, height, format, face.info, face.feature);
 
+                    if (retCode != ErrorInfo.MOK) {
+                        face.feature = null;
+                    }
+                    faces.add(face);
+                }
+
+            }
         }
 
         return faces;
     }
 
     public float compare(byte[] feature1, byte[] feature2) {
-        if (mEngine == null) {
-            createEngine();
-        }
-
         FaceSimilar similar = new FaceSimilar();
         FaceFeature ff1 = new FaceFeature(feature1);
         FaceFeature ff2 = new FaceFeature(feature2);
+        int score = 0;
+        synchronized(this) {
+            if (mEngine == null) {
+                createEngine();
+            }
 
-        int code = mEngine.compareFaceFeature(ff1, ff2, similar);
-        if (code == ErrorInfo.MOK) {
-            return similar.getScore();
+            int code = mEngine.compareFaceFeature(ff1, ff2, similar);
+            if (code == ErrorInfo.MOK) {
+                score = similar.getScore();
+            }
         }
-
-        return 0;
+        return score;
     }
 
     public void setTracking(boolean trackingEnabled) {
@@ -146,9 +148,11 @@ public class RNFaceDetector {
 
     // Lifecycle methods
     private void releaseEngine() {
-        if (mEngine != null) {
-            mEngine.unInit();
-            mEngine = null;
+        synchronized(this) {
+            if (mEngine != null) {
+                mEngine.unInit();
+                mEngine = null;
+            }
         }
     }
 

@@ -7,6 +7,7 @@ import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;
 import com.arcsoft.face.FaceFeature;
 import com.arcsoft.face.FaceInfo;
+import com.arcsoft.face.LivenessInfo;
 import com.arcsoft.face.FaceSimilar;
 import com.arcsoft.face.enums.DetectFaceOrientPriority;
 import com.arcsoft.face.enums.DetectMode;
@@ -70,19 +71,21 @@ public class RNFaceDetector {
                 createEngine();
             }
             int retCode = mEngine.detectFaces(imageData, width, height, format, faceInfoList);
-            if (retCode == ErrorInfo.MOK) {
-                for (int i = 0; i < faceInfoList.size(); i++) {
-                    Face face = new Face();
-                    face.info = faceInfoList.get(i);
-                    face.feature = new FaceFeature();
-                    retCode = mEngine.extractFaceFeature(imageData, width, height, format, face.info, face.feature);
-
-                    if (retCode != ErrorInfo.MOK) {
-                        face.feature = null;
+            if (retCode == ErrorInfo.MOK && faceInfoList.size() > 0) {
+                // 活体检测只支持一个人脸
+                List<LivenessInfo> livenessInfoList = new ArrayList<>();
+                retCode = mEngine.getLiveness(livenessInfoList);
+                if (retCode == ErrorInfo.MOK && livenessInfoList.size() > 0) {
+                    if (livenessInfoList.get(0).getLiveness() == LivenessInfo.ALIVE) {
+                        Face face = new Face();
+                        face.info = faceInfoList.get(0);
+                        face.feature = new FaceFeature();
+                        retCode = mEngine.extractFaceFeature(imageData, width, height, format, face.info, face.feature);
+                        if (retCode == ErrorInfo.MOK) {
+                            faces.add(face);
+                        }
                     }
-                    faces.add(face);
                 }
-
             }
         }
 
@@ -176,9 +179,9 @@ public class RNFaceDetector {
                 DetectFaceOrientPriority.ASF_OP_0_ONLY,
                 mDetectFaceScale,
                 mDetectFaceMaxNum,
-                mMode == FAST_MODE
+                mMode == (FAST_MODE
                         ? FaceEngine.ASF_FACE_DETECT
-                        : (FaceEngine.ASF_FACE_DETECT | FaceEngine.ASF_FACE_RECOGNITION)
+                        : (FaceEngine.ASF_FACE_DETECT | FaceEngine.ASF_FACE_RECOGNITION)) | FaceEngine.ASF_LIVENESS
         );
         if (retCode != ErrorInfo.MOK) {
             // throw new ExceptionInInitializerError("createEngine init failed `" + retCode + "`.");

@@ -20,6 +20,7 @@ public class RNFaceDetector {
     public class Face {
         public FaceInfo info;
         public FaceFeature feature;
+        public LivenessInfo liveness;
     }
 
     public static int ALL_CLASSIFICATIONS = 1;
@@ -72,19 +73,20 @@ public class RNFaceDetector {
             }
             int retCode = mEngine.detectFaces(imageData, width, height, format, faceInfoList);
             if (retCode == ErrorInfo.MOK && faceInfoList.size() > 0) {
-                // 活体检测只支持一个人脸
                 List<LivenessInfo> livenessInfoList = new ArrayList<>();
-                retCode = mEngine.getLiveness(livenessInfoList);
-                if (retCode == ErrorInfo.MOK && livenessInfoList.size() > 0) {
-                    if (livenessInfoList.get(0).getLiveness() == LivenessInfo.ALIVE) {
-                        Face face = new Face();
-                        face.info = faceInfoList.get(0);
-                        face.feature = new FaceFeature();
-                        retCode = mEngine.extractFaceFeature(imageData, width, height, format, face.info, face.feature);
-                        if (retCode == ErrorInfo.MOK) {
-                            faces.add(face);
-                        }
+                int livenessCode = mEngine.getLiveness(livenessInfoList);
+                for (int i = 0; i < faceInfoList.size(); i++) {
+                    Face face = new Face();
+                    face.info = faceInfoList.get(0);
+                    face.feature = new FaceFeature();
+                    retCode = mEngine.extractFaceFeature(imageData, width, height, format, face.info, face.feature);
+                    if (retCode != ErrorInfo.MOK) continue;
+                    if (livenessCode == ErrorInfo.MOK && livenessInfoList.size() > i) {
+                        face.liveness = livenessInfoList.get(0);
+                    } else {
+                        face.liveness = null;
                     }
+                    faces.add(face);
                 }
             }
         }

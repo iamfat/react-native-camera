@@ -33,6 +33,10 @@ public class FaceDetectorUtils {
             encodedFace.putString("feature", Base64.encodeToString(featureData,Base64.NO_WRAP));
         }
 
+        if (face.liveness != null) {
+            encodedFace.putInt("liveness", face.liveness.getLiveness());
+        }
+
         return encodedFace;
     }
 

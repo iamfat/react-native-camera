@@ -1,7 +1,7 @@
 {
   "name": "@genee/react-native-camera",
   "description": "A Camera component for React Native. Also reads barcodes.",
-  "version": "4.2.0-arcsoft-6-liveness",
+  "version": "4.2.0-arcsoft-liveness-1",
   "author": "Lochlan Wansbrough <lochie@live.com> (http://lwansbrough.com)",
   "collective": {
     "type": "opencollective",

@@ -73,20 +73,23 @@ public class RNFaceDetector {
             }
             int retCode = mEngine.detectFaces(imageData, width, height, format, faceInfoList);
             if (retCode == ErrorInfo.MOK && faceInfoList.size() > 0) {
-                List<LivenessInfo> livenessInfoList = new ArrayList<>();
-                int livenessCode = mEngine.getLiveness(livenessInfoList);
-                for (int i = 0; i < faceInfoList.size(); i++) {
-                    Face face = new Face();
-                    face.info = faceInfoList.get(0);
-                    face.feature = new FaceFeature();
-                    retCode = mEngine.extractFaceFeature(imageData, width, height, format, face.info, face.feature);
-                    if (retCode != ErrorInfo.MOK) continue;
-                    if (livenessCode == ErrorInfo.MOK && livenessInfoList.size() > i) {
-                        face.liveness = livenessInfoList.get(0);
-                    } else {
-                        face.liveness = null;
+                retCode = mEngine.process(imageData, width, height, format, faceInfoList, FaceEngine.ASF_LIVENESS);
+                if (retCode == ErrorInfo.MOK) {
+                    List<LivenessInfo> livenessInfoList = new ArrayList<>();
+                    int livenessCode = mEngine.getLiveness(livenessInfoList);
+                    for (int i = 0; i < faceInfoList.size(); i++) {
+                        Face face = new Face();
+                        face.info = faceInfoList.get(0);
+                        face.feature = new FaceFeature();
+                        retCode = mEngine.extractFaceFeature(imageData, width, height, format, face.info, face.feature);
+                        if (retCode != ErrorInfo.MOK) continue;
+                        if (livenessCode == ErrorInfo.MOK && livenessInfoList.size() > i) {
+                            face.liveness = livenessInfoList.get(0);
+                        } else {
+                            face.liveness = null;
+                        }
+                        faces.add(face);
                     }
-                    faces.add(face);
                 }
             }
         }

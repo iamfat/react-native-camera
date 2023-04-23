@@ -79,12 +79,12 @@ public class RNFaceDetector {
                     int livenessCode = mEngine.getLiveness(livenessInfoList);
                     for (int i = 0; i < faceInfoList.size(); i++) {
                         Face face = new Face();
-                        face.info = faceInfoList.get(0);
+                        face.info = faceInfoList.get(i);
                         face.feature = new FaceFeature();
                         retCode = mEngine.extractFaceFeature(imageData, width, height, format, face.info, face.feature);
                         if (retCode != ErrorInfo.MOK) continue;
                         if (livenessCode == ErrorInfo.MOK && livenessInfoList.size() > i) {
-                            face.liveness = livenessInfoList.get(0);
+                            face.liveness = livenessInfoList.get(i);
                         } else {
                             face.liveness = null;
                         }
@@ -101,7 +101,7 @@ public class RNFaceDetector {
         FaceSimilar similar = new FaceSimilar();
         FaceFeature ff1 = new FaceFeature(feature1);
         FaceFeature ff2 = new FaceFeature(feature2);
-        int score = 0;
+        float score = 0.0f;
         synchronized(this) {
             if (mEngine == null) {
                 createEngine();
@@ -184,7 +184,7 @@ public class RNFaceDetector {
                 DetectFaceOrientPriority.ASF_OP_0_ONLY,
                 mDetectFaceScale,
                 mDetectFaceMaxNum,
-                mMode == (FAST_MODE
+                (mMode == FAST_MODE
                         ? FaceEngine.ASF_FACE_DETECT
                         : (FaceEngine.ASF_FACE_DETECT | FaceEngine.ASF_FACE_RECOGNITION)) | FaceEngine.ASF_LIVENESS
         );

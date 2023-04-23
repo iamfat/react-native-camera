@@ -92,6 +92,7 @@ public class RNFaceDetector {
                     }
                 }
             }
+            Log.i("arcsoft", "detect: found=" + faceInfoList.size() + " extracted=" + faces.size());
         }
 
         return faces;
@@ -175,9 +176,10 @@ public class RNFaceDetector {
         }
         if (retCode != ErrorInfo.MOK && retCode != 90114) {
             // throw new ExceptionInInitializerError("createEngine activate failed `" + retCode + "`.");
-            Log.d("arcsoft", "createEngine:activate error=" + retCode);
+            Log.e("arcsoft", "createEngine:activate error=" + retCode);
             return;
         }
+        Log.i("arcsoft", "createEngine:activated");
 
         retCode = mEngine.init(mContext,
                 mDetectVideo ? DetectMode.ASF_DETECT_MODE_VIDEO : DetectMode.ASF_DETECT_MODE_IMAGE,
@@ -190,9 +192,10 @@ public class RNFaceDetector {
         );
         if (retCode != ErrorInfo.MOK) {
             // throw new ExceptionInInitializerError("createEngine init failed `" + retCode + "`.");
-            Log.d("arcsoft", "createEngine:init error=" + retCode);
+            Log.e("arcsoft", "createEngine:init error=" + retCode);
             return;
         }
+        Log.i("arcsoft", "createEngine:initialized");
     }
 
 }

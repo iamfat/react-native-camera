@@ -513,12 +513,19 @@ interface DetectionOptions {
   runClassifications?: keyof FaceDetectionClassifications;
 }
 
+type EngineOptions = {
+  activeKey?: string;
+  appId?: string;
+  sdkKey?: string;
+}
+
 type FaceCandidates = { [faceId: string]: string };
 type FaceSimilarities = { [faceId: string]: number };
 
 export class FaceDetector {
   private constructor();
   static Constants: Constants['FaceDetection'];
+  static init(options: EngineOptions): Promise<boolean>;
   static detectFacesAsync(uri: string, options?: DetectionOptions): Promise<Face[]>;
   static identifyFaceAsync(
     feature: string,

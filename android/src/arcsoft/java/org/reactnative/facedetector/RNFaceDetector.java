@@ -34,8 +34,9 @@ public class RNFaceDetector {
     public static String mSdkKey = "";
     public static String mActiveKey = "";
 
-    private FaceEngine mEngine = null;
-    private Context mContext = null;
+    private static FaceEngine mEngine = null;
+    private static Context mContext = null;
+
     private int mClassificationType = NO_CLASSIFICATIONS;
     private int mLandmarkType = NO_LANDMARKS;
     private int mMode = FAST_MODE;
@@ -44,18 +45,12 @@ public class RNFaceDetector {
     private boolean mDetectVideo;
 
     public RNFaceDetector(Context context, boolean detectVideo) {
-        mContext = context;
-        mDetectVideo = detectVideo;
+        // mContext = context;
+        // mDetectVideo = detectVideo;
     }
 
     public RNFaceDetector(Context context) {
         this(context, true);
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        release();
-        super.finalize();
     }
 
     // Public API
@@ -65,12 +60,10 @@ public class RNFaceDetector {
 
     public List<Face> detect(byte[] imageData, int width, int height, int format) {
         List<Face> faces = new ArrayList<>();
-        List<FaceInfo> faceInfoList = new ArrayList<>();
 
-        synchronized(this) {
-            if (mEngine == null) {
-                createEngine();
-            }
+        if (!mEngine) return;
+        synchronized(mEngine) {
+            List<FaceInfo> faceInfoList = new ArrayList<>();
             int retCode = mEngine.detectFaces(imageData, width, height, format, faceInfoList);
             if (retCode == ErrorInfo.MOK && faceInfoList.size() > 0) {
                 retCode = mEngine.process(imageData, width, height, format, faceInfoList, FaceEngine.ASF_LIVENESS);
@@ -99,76 +92,84 @@ public class RNFaceDetector {
     }
 
     public float compare(byte[] feature1, byte[] feature2) {
-        FaceSimilar similar = new FaceSimilar();
-        FaceFeature ff1 = new FaceFeature(feature1);
-        FaceFeature ff2 = new FaceFeature(feature2);
         float score = 0.0f;
-        synchronized(this) {
-            if (mEngine == null) {
-                createEngine();
-            }
 
+        if (!mEngine) return;
+        synchronized(mEngine) {
+            FaceSimilar similar = new FaceSimilar();
+            FaceFeature ff1 = new FaceFeature(feature1);
+            FaceFeature ff2 = new FaceFeature(feature2);
             int code = mEngine.compareFaceFeature(ff1, ff2, similar);
             if (code == ErrorInfo.MOK) {
                 score = similar.getScore();
             }
         }
+
         return score;
     }
 
     public void setTracking(boolean trackingEnabled) {
-        releaseEngine();
+        // releaseEngine();
     }
 
     public void setClassificationType(int classificationType) {
-        if (classificationType != mClassificationType) {
-            releaseEngine();
-            mClassificationType = classificationType;
-        }
+        // if (classificationType != mClassificationType) {
+        //     releaseEngine();
+        //     mClassificationType = classificationType;
+        // }
     }
 
     public void setLandmarkType(int landmarkType) {
-        if (landmarkType != mLandmarkType) {
-            releaseEngine();
-            mLandmarkType = landmarkType;
-        }
+        // if (landmarkType != mLandmarkType) {
+        //     releaseEngine();
+        //     mLandmarkType = landmarkType;
+        // }
     }
 
     public void setMode(int mode) {
-
-        if (mode != mMode) {
-            releaseEngine();
-            mMode = mode;
-        }
+        // if (mode != mMode) {
+        //     mMode = mode;
+        //     reloadEngine();
+        // }
     }
 
-    public void setEngineOptions(String appId, String sdkKey, String activeKey) {
+    public static boolean init(Context context, String appId, String sdkKey, String activeKey) {
+        mContext = context;
+        if (mEngine == null) {
+            mEngine = new FaceEngine();
+        }
+        boolean ret = false;
         if (appId != mAppId || sdkKey != mSdkKey || activeKey != mActiveKey) {
-            releaseEngine();
             mAppId = appId;
             mSdkKey = sdkKey;
             mActiveKey = activeKey;
+            ret = reloadEngine();
         }
-    }
-
-    public void release() {
-        releaseEngine();
+        return ret;
     }
 
     // Lifecycle methods
-    private void releaseEngine() {
-        synchronized(this) {
-            if (mEngine != null) {
-                mEngine.unInit();
-                mEngine = null;
-            }
+    private static void release() {
+        synchronized(mEngine) {
+            mEngine.unInit();
         }
     }
 
-    private void createEngine() {
-        mEngine = new FaceEngine();
-        int retCode;
+    private static void reloadEngine() {
+        boolean ret = false;
+        synchronized(mEngine) {
+            mEngine.unInit();
+            ret = initEngine();
+        }
+        return ret;
+    }
 
+    private static boolean initEngine() {
+        if (mActiveKey == "" || (!mActiveKey.startsWith("/") && (mAppId=="" || mSdkKey==""))) {
+            return false;
+        }
+
+        int retCode;
         if (mActiveKey.startsWith("/")) {
             retCode = mEngine.activeOffline(mContext, mActiveKey);
         } else {
@@ -177,7 +178,7 @@ public class RNFaceDetector {
         if (retCode != ErrorInfo.MOK && retCode != 90114) {
             // throw new ExceptionInInitializerError("createEngine activate failed `" + retCode + "`.");
             Log.e("arcsoft", "createEngine:activate error=" + retCode);
-            return;
+            return false;
         }
         Log.i("arcsoft", "createEngine:activated");
 
@@ -193,9 +194,10 @@ public class RNFaceDetector {
         if (retCode != ErrorInfo.MOK) {
             // throw new ExceptionInInitializerError("createEngine init failed `" + retCode + "`.");
             Log.e("arcsoft", "createEngine:init error=" + retCode);
-            return;
+            return false;
         }
         Log.i("arcsoft", "createEngine:initialized");
+        return true;
     }
 
 }

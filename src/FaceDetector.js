@@ -8,6 +8,7 @@ const FaceDetectorModule: Object = NativeModules.RNFaceDetector || {
   Mode: {},
   Landmarks: {},
   Classifications: {},
+  init: () => new Promise((_, reject) => reject(faceDetectionDisabledMessage)),
   detectFaces: () => new Promise((_, reject) => reject(faceDetectionDisabledMessage)),
   identifyFace: () => new Promise((_, reject) => reject(faceDetectionDisabledMessage)),
 };
@@ -40,6 +41,12 @@ export type FaceFeature = {
   rollAngle?: number,
 };
 
+type EngineOptions = {
+  activeKey?: string;
+  appId?: string;
+  sdkKey?: string;
+}
+
 type DetectionOptions = {
   mode?: $Keys<typeof FaceDetectorModule.Mode>,
   detectLandmarks?: $Keys<typeof FaceDetectorModule.Landmarks>,
@@ -55,6 +62,10 @@ export default class FaceDetector {
     Landmarks: FaceDetectorModule.Landmarks,
     Classifications: FaceDetectorModule.Classifications,
   };
+
+  static init(options: EngineOptions): Promise<boolean> {
+    return FaceDetectorModule.init(options);
+  }
 
   static detectFacesAsync(uri: string, options: ?DetectionOptions): Promise<Array<FaceFeature>> {
     return FaceDetectorModule.detectFaces({ ...options, uri });

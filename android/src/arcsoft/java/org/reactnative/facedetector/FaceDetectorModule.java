@@ -26,6 +26,12 @@ public class FaceDetectorModule extends ReactContextBaseJavaModule {
     }
 
     @Override
+    public void onCatalystInstanceDestroy() {
+        super();
+        RNFaceDetector.release();
+    }
+
+    @Override
     public String getName() {
         return TAG;
     }
@@ -79,4 +85,12 @@ public class FaceDetectorModule extends ReactContextBaseJavaModule {
         new FaceIdentificationAsyncTask(mScopedContext, feature, candidates, threshold, promise).execute();
     }
 
+    @ReactMethod
+    public void init(ReadableMap options, final Promise promise) {
+        String appId = options.hasKey("appId") ? options.getString("appId") : null;
+        String sdkKey = options.hasKey("sdkKey") ? options.getString("sdkKey") : null;
+        String activeKey = options.hasKey("activeKey") ? options.getString("activeKey") : null;
+        boolean ret = RNFaceDetector.init(mScopedContext, appId, sdkKey, activeKey);
+        promise.resolve(ret);
+    }
 }

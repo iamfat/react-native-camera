@@ -125,7 +125,6 @@ public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, List<RNFac
     image.putString("uri", mUri);
     result.putMap("image", image);
 
-    mRNFaceDetector.release();
     mPromise.resolve(result);
   }
 

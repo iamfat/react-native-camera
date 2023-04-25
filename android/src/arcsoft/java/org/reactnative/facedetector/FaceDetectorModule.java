@@ -27,8 +27,7 @@ public class FaceDetectorModule extends ReactContextBaseJavaModule {
 
     @Override
     public void onCatalystInstanceDestroy() {
-        super();
-        RNFaceDetector.release();
+        RNFaceDetector.releaseEngine();
     }
 
     @Override

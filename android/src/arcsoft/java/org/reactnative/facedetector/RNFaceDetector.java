@@ -35,13 +35,14 @@ public class RNFaceDetector {
     public static String mActiveKey = "";
 
     private static FaceEngine mEngine = null;
+    private static boolean mEngineInited = false;
     private static Context mContext = null;
+    private static int mDetectFaceScale = 30;
+    private static int mDetectFaceMaxNum = 5;
 
     private int mClassificationType = NO_CLASSIFICATIONS;
     private int mLandmarkType = NO_LANDMARKS;
     private int mMode = FAST_MODE;
-    private int mDetectFaceScale = 30;
-    private int mDetectFaceMaxNum = 5;
     private boolean mDetectVideo;
 
     public RNFaceDetector(Context context, boolean detectVideo) {
@@ -61,8 +62,9 @@ public class RNFaceDetector {
     public List<Face> detect(byte[] imageData, int width, int height, int format) {
         List<Face> faces = new ArrayList<>();
 
-        if (!mEngine) return;
-        synchronized(mEngine) {
+        if (mEngine == null || !mEngineInited)
+            return faces;
+        synchronized (mEngine) {
             List<FaceInfo> faceInfoList = new ArrayList<>();
             int retCode = mEngine.detectFaces(imageData, width, height, format, faceInfoList);
             if (retCode == ErrorInfo.MOK && faceInfoList.size() > 0) {
@@ -75,7 +77,8 @@ public class RNFaceDetector {
                         face.info = faceInfoList.get(i);
                         face.feature = new FaceFeature();
                         retCode = mEngine.extractFaceFeature(imageData, width, height, format, face.info, face.feature);
-                        if (retCode != ErrorInfo.MOK) continue;
+                        if (retCode != ErrorInfo.MOK)
+                            continue;
                         if (livenessCode == ErrorInfo.MOK && livenessInfoList.size() > i) {
                             face.liveness = livenessInfoList.get(i);
                         } else {
@@ -94,8 +97,9 @@ public class RNFaceDetector {
     public float compare(byte[] feature1, byte[] feature2) {
         float score = 0.0f;
 
-        if (!mEngine) return;
-        synchronized(mEngine) {
+        if (mEngine == null || !mEngineInited)
+            return score;
+        synchronized (mEngine) {
             FaceSimilar similar = new FaceSimilar();
             FaceFeature ff1 = new FaceFeature(feature1);
             FaceFeature ff2 = new FaceFeature(feature2);
@@ -114,22 +118,22 @@ public class RNFaceDetector {
 
     public void setClassificationType(int classificationType) {
         // if (classificationType != mClassificationType) {
-        //     releaseEngine();
-        //     mClassificationType = classificationType;
+        // releaseEngine();
+        // mClassificationType = classificationType;
         // }
     }
 
     public void setLandmarkType(int landmarkType) {
         // if (landmarkType != mLandmarkType) {
-        //     releaseEngine();
-        //     mLandmarkType = landmarkType;
+        // releaseEngine();
+        // mLandmarkType = landmarkType;
         // }
     }
 
     public void setMode(int mode) {
         // if (mode != mMode) {
-        //     mMode = mode;
-        //     reloadEngine();
+        // mMode = mode;
+        // reloadEngine();
         // }
     }
 
@@ -149,23 +153,32 @@ public class RNFaceDetector {
     }
 
     // Lifecycle methods
-    private static void release() {
-        synchronized(mEngine) {
-            mEngine.unInit();
+    public void release() {
+        // DO NOTHING
+    }
+
+    public static void releaseEngine() {
+        synchronized (mEngine) {
+            if (mEngineInited)
+                mEngine.unInit();
+            mEngineInited = false;
         }
     }
 
-    private static void reloadEngine() {
+    private static boolean reloadEngine() {
         boolean ret = false;
-        synchronized(mEngine) {
-            mEngine.unInit();
+        synchronized (mEngine) {
+            if (mEngineInited)
+                mEngine.unInit();
+            mEngineInited = false;
             ret = initEngine();
         }
         return ret;
     }
 
     private static boolean initEngine() {
-        if (mActiveKey == "" || (!mActiveKey.startsWith("/") && (mAppId=="" || mSdkKey==""))) {
+        if (mActiveKey == null || mActiveKey == ""
+                || (!mActiveKey.startsWith("/") && (mAppId == "" || mSdkKey == ""))) {
             return false;
         }
 
@@ -176,27 +189,31 @@ public class RNFaceDetector {
             retCode = mEngine.activeOnline(mContext, mActiveKey, mAppId, mSdkKey);
         }
         if (retCode != ErrorInfo.MOK && retCode != 90114) {
-            // throw new ExceptionInInitializerError("createEngine activate failed `" + retCode + "`.");
+            // throw new ExceptionInInitializerError("createEngine activate failed `" +
+            // retCode + "`.");
             Log.e("arcsoft", "createEngine:activate error=" + retCode);
             return false;
         }
         Log.i("arcsoft", "createEngine:activated");
 
+        final int userRotation = Settings.System.getIntForUser(resolver,
+                Settings.System.USER_ROTATION, Surface.ROTATION_0,
+                UserHandle.USER_CURRENT);
+
         retCode = mEngine.init(mContext,
-                mDetectVideo ? DetectMode.ASF_DETECT_MODE_VIDEO : DetectMode.ASF_DETECT_MODE_IMAGE,
+                DetectMode.ASF_DETECT_MODE_VIDEO,
                 DetectFaceOrientPriority.ASF_OP_0_ONLY,
                 mDetectFaceScale,
                 mDetectFaceMaxNum,
-                (mMode == FAST_MODE
-                        ? FaceEngine.ASF_FACE_DETECT
-                        : (FaceEngine.ASF_FACE_DETECT | FaceEngine.ASF_FACE_RECOGNITION)) | FaceEngine.ASF_LIVENESS
-        );
+                FaceEngine.ASF_FACE_DETECT | FaceEngine.ASF_FACE_RECOGNITION | FaceEngine.ASF_LIVENESS);
         if (retCode != ErrorInfo.MOK) {
-            // throw new ExceptionInInitializerError("createEngine init failed `" + retCode + "`.");
+            // throw new ExceptionInInitializerError("createEngine init failed `" + retCode
+            // + "`.");
             Log.e("arcsoft", "createEngine:init error=" + retCode);
             return false;
         }
         Log.i("arcsoft", "createEngine:initialized");
+        mEngineInited = true;
         return true;
     }
 

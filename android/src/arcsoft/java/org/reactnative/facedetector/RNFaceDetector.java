@@ -30,9 +30,9 @@ public class RNFaceDetector {
     public static int ACCURATE_MODE = 1;
     public static int FAST_MODE = 0;
 
-    public static String mAppId = "";
-    public static String mSdkKey = "";
-    public static String mActiveKey = "";
+    public static String mAppId = null;
+    public static String mSdkKey = null;
+    public static String mActiveKey = null;
 
     private static FaceEngine mEngine = null;
     private static boolean mEngineInited = false;
@@ -178,7 +178,7 @@ public class RNFaceDetector {
 
     private static boolean initEngine() {
         if (mActiveKey == null || mActiveKey == ""
-                || (!mActiveKey.startsWith("/") && (mAppId == "" || mSdkKey == ""))) {
+                || (!mActiveKey.startsWith("/") && (mAppId == "" || mAppId == null || mSdkKey == "" || mSdkKey == null))) {
             return false;
         }
 

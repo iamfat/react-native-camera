@@ -196,10 +196,6 @@ public class RNFaceDetector {
         }
         Log.i("arcsoft", "createEngine:activated");
 
-        final int userRotation = Settings.System.getIntForUser(resolver,
-                Settings.System.USER_ROTATION, Surface.ROTATION_0,
-                UserHandle.USER_CURRENT);
-
         retCode = mEngine.init(mContext,
                 DetectMode.ASF_DETECT_MODE_VIDEO,
                 DetectFaceOrientPriority.ASF_OP_0_ONLY,

@@ -30,6 +30,7 @@ public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, List<RNFac
   private static final String MODE_OPTION_KEY = "mode";
   private static final String DETECT_LANDMARKS_OPTION_KEY = "detectLandmarks";
   private static final String RUN_CLASSIFICATIONS_OPTION_KEY = "runClassifications";
+  private static final String DETECT_LIVENESS_OPTION_KEY = "detectLiveness";
 
   private String mUri;
   private String mPath;
@@ -142,6 +143,10 @@ public class FileFaceDetectionAsyncTask extends AsyncTask<Void, Void, List<RNFac
 
     if(options.hasKey(DETECT_LANDMARKS_OPTION_KEY)) {
       detector.setLandmarkType(options.getInt(DETECT_LANDMARKS_OPTION_KEY));
+    }
+
+    if (options.hasKey(DETECT_LIVENESS_OPTION_KEY)) {
+      detector.setDetectLiveness(options.getBoolean(DETECT_LIVENESS_OPTION_KEY));
     }
 
     return detector;

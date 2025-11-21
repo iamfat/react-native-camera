@@ -11,6 +11,7 @@ import com.arcsoft.face.LivenessInfo;
 import com.arcsoft.face.FaceSimilar;
 import com.arcsoft.face.enums.DetectFaceOrientPriority;
 import com.arcsoft.face.enums.DetectMode;
+import com.arcsoft.face.enums.ExtractType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +38,8 @@ public class RNFaceDetector {
     private static FaceEngine mEngine = null;
     private static boolean mEngineInited = false;
     private static Context mContext = null;
-    private static int mDetectFaceScale = 30;
     private static int mDetectFaceMaxNum = 5;
+    private static boolean mDetectLiveness = false;
 
     private int mClassificationType = NO_CLASSIFICATIONS;
     private int mLandmarkType = NO_LANDMARKS;
@@ -64,27 +65,38 @@ public class RNFaceDetector {
 
         if (mEngine == null || !mEngineInited)
             return faces;
+
         synchronized (mEngine) {
             List<FaceInfo> faceInfoList = new ArrayList<>();
             int retCode = mEngine.detectFaces(imageData, width, height, format, faceInfoList);
             if (retCode == ErrorInfo.MOK && faceInfoList.size() > 0) {
-                retCode = mEngine.process(imageData, width, height, format, faceInfoList, FaceEngine.ASF_LIVENESS);
-                if (retCode == ErrorInfo.MOK) {
-                    List<LivenessInfo> livenessInfoList = new ArrayList<>();
-                    int livenessCode = mEngine.getLiveness(livenessInfoList);
-                    for (int i = 0; i < faceInfoList.size(); i++) {
-                        Face face = new Face();
-                        face.info = faceInfoList.get(i);
-                        face.feature = new FaceFeature();
-                        retCode = mEngine.extractFaceFeature(imageData, width, height, format, face.info, face.feature);
-                        if (retCode != ErrorInfo.MOK)
-                            continue;
-                        if (livenessCode == ErrorInfo.MOK && livenessInfoList.size() > i) {
-                            face.liveness = livenessInfoList.get(i);
-                        } else {
-                            face.liveness = null;
+                for (int i = 0; i < faceInfoList.size(); i++) {
+                    Face face = new Face();
+                    face.info = faceInfoList.get(i);
+                    face.feature = new FaceFeature();
+                    retCode = mEngine.extractFaceFeature(
+                        imageData, width, height, format, 
+                        face.info,  ExtractType.RECOGNIZE, 0, face.feature);
+                    if (retCode != ErrorInfo.MOK)
+                        continue;
+                    faces.add(face);
+                }
+                if (mDetectLiveness) {
+                    retCode = mEngine.process(imageData, width, height, format, faceInfoList, FaceEngine.ASF_LIVENESS);
+                    if (retCode == ErrorInfo.MOK) {
+                        List<LivenessInfo> livenessInfoList = new ArrayList<>();
+                        int livenessCode = mEngine.getLiveness(livenessInfoList);
+                        if (livenessCode == ErrorInfo.MOK) {
+                            for (int i = 0; i < faces.size(); i++) {
+                                Face face = faces.get(i);
+                                for (int j = 0; j < faceInfoList.size(); j++) {
+                                    if (face.info == faceInfoList.get(j)) {
+                                        face.liveness = livenessInfoList.get(j);
+                                        break;
+                                    }
+                                }
+                            }
                         }
-                        faces.add(face);
                     }
                 }
             }
@@ -135,6 +147,12 @@ public class RNFaceDetector {
         // mMode = mode;
         // reloadEngine();
         // }
+    }
+
+    public void setDetectLiveness(boolean detectLiveness) {
+        if (detectLiveness != mDetectLiveness) {
+            mDetectLiveness = detectLiveness;
+        }
     }
 
     public static boolean init(Context context, String appId, String sdkKey, String activeKey) {
@@ -199,7 +217,6 @@ public class RNFaceDetector {
         retCode = mEngine.init(mContext,
                 DetectMode.ASF_DETECT_MODE_VIDEO,
                 DetectFaceOrientPriority.ASF_OP_0_ONLY,
-                mDetectFaceScale,
                 mDetectFaceMaxNum,
                 FaceEngine.ASF_FACE_DETECT | FaceEngine.ASF_FACE_RECOGNITION | FaceEngine.ASF_LIVENESS);
         if (retCode != ErrorInfo.MOK) {
